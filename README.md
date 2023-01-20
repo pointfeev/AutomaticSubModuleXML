@@ -1,2 +1,0 @@
-# Bannerlord.AutomaticSubModuleXML
- 
