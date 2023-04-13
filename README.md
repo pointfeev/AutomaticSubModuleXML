@@ -1,2 +1,4 @@
 ## Bannerlord.AutomaticSubModuleXML
-For personal use within my mods [SortedIncome](https://github.com/pointfeev/SortedIncome) and [FormationSorter](https://github.com/pointfeev/FormationSorter).
+For personal use within my Bannerlord mods
+
+See [Aggregated Income](https://github.com/pointfeev/SortedIncome)'s [SubModule.cs](https://github.com/pointfeev/SortedIncome/blob/main/SubModule.cs#L19), [AssemblyInfo.cs](https://github.com/pointfeev/SortedIncome/blob/main/Properties/AssemblyInfo.cs#L6), and [SortedIncome.csproj](https://github.com/pointfeev/SortedIncome/blob/main/SortedIncome.csproj#L47) for an idea of how this is set up within a project if you wish to use it. If you do wish to use this, [make sure the assembly name and root namespace are the same](https://github.com/pointfeev/SortedIncome/blob/main/SortedIncome.csproj#L11) and keep in mind that, along with needing to build the DLL yourself, you may need to edit the exact output for your needs [within this method](https://github.com/pointfeev/AutomaticSubModuleXML/blob/main/AutomaticSubModuleXML.cs#L17).
