@@ -89,6 +89,7 @@ public class AutomaticSubModuleXML : Task
             _ = Message.AppendLine("\tSubModules:");
             foreach (ModuleSubModule subModule in subModules)
             {
+                _ = Output.AppendLine("\t\t<SubModule>");
                 _ = Message.AppendLine($"\t\t{subModule.Name}:");
                 _ = Output.AppendLine($"\t\t\t<Name value=\"{subModule.Name}\" />");
                 _ = Output.AppendLine($"\t\t\t<DLLName value=\"{subModule.DLLName}\" />");
@@ -115,8 +116,8 @@ public class AutomaticSubModuleXML : Task
                     }
                     _ = Output.AppendLine("\t\t\t</Tags>");
                 }
+                _ = Output.AppendLine("\t\t</SubModule>");
             }
-            _ = Output.AppendLine("\t\t</SubModule>");
             _ = Output.AppendLine("\t</SubModules>");
         }
         _ = Output.Append("</Module>");
