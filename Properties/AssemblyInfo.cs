@@ -1,35 +1,30 @@
 ﻿using System.Reflection;
 using System.Runtime.InteropServices;
+using Bannerlord.AutomaticSubModuleXML;
 
-// General Information about an assembly is controlled through the following
-// set of attributes. Change these attribute values to modify the information
-// associated with an assembly.
-[assembly: AssemblyTitle("Bannerlord.AutomaticSubModuleXML")]
-[assembly: AssemblyDescription("")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Bannerlord.AutomaticSubModuleXML")]
-[assembly: AssemblyCopyright("Copyright ©  2023")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
-
-// Setting ComVisible to false makes the types in this assembly not visible
-// to COM components.  If you need to access a type in this assembly from
-// COM, set the ComVisible attribute to true on that type.
 [assembly: ComVisible(false)]
-
-// The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("a19a9629-8ce0-4b07-b0f0-4afdacd2e880")]
-
-// Version information for an assembly consists of the following four values:
-//
-//      Major Version
-//      Minor Version
-//      Build Number
-//      Revision
-//
-// You can specify all the values or you can default the Build and Revision Numbers
-// by using the '*' as shown below:
-// [assembly: AssemblyVersion("1.0.*")]
+[assembly: AssemblyTitle("Bannerlord.AutomaticSubModuleXML")]
+[assembly: AssemblyProduct("AutomaticSubModuleXML")]
+[assembly: AssemblyCopyright("2023, pointfeev (https://github.com/pointfeev)")]
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
+
+// attribute examples
+[assembly: ModuleId("Bannerlord.AutomaticSubModuleXML")]
+[assembly: ModuleName("AutomaticSubModuleXML")]
+[assembly: ModuleVersion("v1.0.0")]
+[assembly: ModuleDefault(true)]
+[assembly: ModuleCategory(ModuleCategoryValue.Singleplayer)]
+[assembly: ModuleType(ModuleTypeValue.Community)]
+[assembly: ModuleUrl("https://github.com/pointfeev/AutomaticSubModuleXML")]
+[assembly: ModuleDependency("Bannerlord.Harmony", "v2.2.2")]
+[assembly: ModuleDependency("Bannerlord.MBOptionScreen", "v5.7.1")]
+[assembly: ModuleDependency("Native", "v1.1.3")]
+[assembly: ModuleDependency("SandboxCore", "v1.1.3")]
+[assembly: ModuleDependency("Sandbox", "v1.1.3")]
+[assembly: ModuleDependency("StoryMode", "v1.1.3")]
+[assembly: ModuleDependency("CustomBattle", "v1.1.3", true)]
+[assembly: ModuleDependency("BirthAndDeath", "v1.1.3", true)]
+[assembly:
+    ModuleSubModule("AutomaticSubModuleXML", "Bannerlord.AutomaticSubModuleXML.dll", "Bannerlord.AutomaticSubModuleXML.SubModule",
+        new[] { "DedicatedServerType", "none", "IsNoRenderModeElement", "false" })]

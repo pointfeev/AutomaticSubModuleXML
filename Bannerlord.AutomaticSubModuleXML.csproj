@@ -23,6 +23,7 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="SubModuleAttributes.cs" />
     <Compile Include="AutomaticSubModuleXML.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
