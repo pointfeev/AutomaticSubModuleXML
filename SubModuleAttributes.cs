@@ -34,24 +34,20 @@ public class ModuleDefault : Attribute
     public bool Value { get; }
 }
 
-public enum ModuleCategoryValue { Singleplayer, Multiplayer, Server }
-
 [AttributeUsage(AttributeTargets.Assembly)]
 public class ModuleCategory : Attribute
 {
-    public ModuleCategory(ModuleCategoryValue value) => Value = value;
+    public ModuleCategory(string value) => Value = value;
 
-    public ModuleCategoryValue Value { get; }
+    public string Value { get; }
 }
-
-public enum ModuleTypeValue { Official, OfficialOptional, Community }
 
 [AttributeUsage(AttributeTargets.Assembly)]
 public class ModuleType : Attribute
 {
-    public ModuleType(ModuleTypeValue value) => Value = value;
+    public ModuleType(string value) => Value = value;
 
-    public ModuleTypeValue Value { get; }
+    public string Value { get; }
 }
 
 [AttributeUsage(AttributeTargets.Assembly)]
@@ -63,9 +59,9 @@ public class ModuleUrl : Attribute
 }
 
 [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
-public class ModuleDependency : Attribute
+public class ModuleDependedModule : Attribute
 {
-    public ModuleDependency(string id, string version = null, bool optional = false)
+    public ModuleDependedModule(string id, string version = null, bool optional = false)
     {
         Id = id;
         Optional = optional;
@@ -75,6 +71,22 @@ public class ModuleDependency : Attribute
     public string Id { get; }
     public bool Optional { get; }
     public string Version { get; }
+}
+
+[AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
+public class ModuleModulesToLoadAfterThis : Attribute
+{
+    public ModuleModulesToLoadAfterThis(string id) => Id = id;
+
+    public string Id { get; }
+}
+
+[AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
+public class ModuleIncompatibleModule : Attribute
+{
+    public ModuleIncompatibleModule(string id) => Id = id;
+
+    public string Id { get; }
 }
 
 [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
@@ -92,4 +104,19 @@ public class ModuleSubModule : Attribute
     public string DLLName { get; }
     public string SubModuleClassType { get; }
     public string[] Tags { get; }
+}
+
+[AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
+public class ModuleXml : Attribute
+{
+    public ModuleXml(string id, string path, string[] includedGameTypes = null)
+    {
+        Id = id;
+        Path = path;
+        IncludedGameTypes = includedGameTypes;
+    }
+
+    public string Id { get; }
+    public string Path { get; }
+    public string[] IncludedGameTypes { get; }
 }
