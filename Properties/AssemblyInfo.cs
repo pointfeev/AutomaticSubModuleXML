@@ -16,7 +16,6 @@ using Bannerlord.AutomaticSubModuleXML;
 [assembly: ModuleDefault(true)]
 [assembly: ModuleCategory("Singleplayer")]
 [assembly: ModuleType("Community")]
-[assembly: ModuleUrl("https://github.com/pointfeev/AutomaticSubModuleXML")]
 [assembly: ModuleDependedModule("Bannerlord.Harmony", "v2.2.2")]
 [assembly: ModuleDependedModule("Bannerlord.MBOptionScreen", "v5.7.1")]
 [assembly: ModuleDependedModule("Native", "v1.1.3")]

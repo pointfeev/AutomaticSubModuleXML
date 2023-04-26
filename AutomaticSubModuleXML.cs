@@ -50,9 +50,6 @@ public class AutomaticSubModuleXML : Task
         string type = LogGetAttribute<ModuleType>(assembly)?.Value;
         _ = Output.AppendLine($"\t<ModuleType value=\"{type}\" />");
         _ = Message.AppendLine($"\tModuleType = {type}");
-        string url = LogGetAttribute<ModuleUrl>(assembly)?.Value;
-        _ = Output.AppendLine($"\t<Url value=\"{url}\" />");
-        _ = Message.AppendLine($"\tUrl = {url}");
         List<ModuleDependedModule> dependencies = assembly.GetCustomAttributes<ModuleDependedModule>().ToList();
         if (dependencies.Count > 0)
         {

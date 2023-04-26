@@ -50,14 +50,6 @@ public class ModuleType : Attribute
     public string Value { get; }
 }
 
-[AttributeUsage(AttributeTargets.Assembly)]
-public class ModuleUrl : Attribute
-{
-    public ModuleUrl(string url) => Value = url;
-
-    public string Value { get; }
-}
-
 [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
 public class ModuleDependedModule : Attribute
 {
