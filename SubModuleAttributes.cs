@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Bannerlord.AutomaticSubModuleXML;
+namespace ASMXML;
 
 [AttributeUsage(AttributeTargets.Assembly)]
 public class ModuleId : Attribute

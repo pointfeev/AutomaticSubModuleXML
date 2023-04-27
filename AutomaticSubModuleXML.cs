@@ -7,7 +7,7 @@ using System.Text;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 
-namespace Bannerlord.AutomaticSubModuleXML;
+namespace ASMXML;
 
 public class AutomaticSubModuleXML : Task
 {

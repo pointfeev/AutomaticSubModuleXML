@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 using System.Runtime.InteropServices;
-using Bannerlord.AutomaticSubModuleXML;
+using ASMXML;
 
 [assembly: ComVisible(false)]
 [assembly: AssemblyTitle("Bannerlord.AutomaticSubModuleXML")]
