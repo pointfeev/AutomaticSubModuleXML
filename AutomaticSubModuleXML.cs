@@ -161,8 +161,8 @@ public class AutomaticSubModuleXML : Task
         _ = Output.Append("</Module>");
         if (Log.HasLoggedErrors)
             return false;
-        File.WriteAllText(output, Output.ToString());
-        Log.LogMessage(MessageImportance.High, Message.ToString());
+        File.WriteAllText(output, Output.ToString().Trim());
+        Log.LogMessage(MessageImportance.High, Message.ToString().Trim());
         return true;
     }
 }
