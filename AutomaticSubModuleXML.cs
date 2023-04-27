@@ -119,7 +119,7 @@ public class AutomaticSubModuleXML : Task
                         string key = subModule.Tags[i];
                         if (++i > subModule.Tags.Length)
                         {
-                            Log.LogError($"Incorrect number of tags for SubModule \"{subModule.Name}\"");
+                            Log.LogError($"Invalid number of tag parameters for SubModule \"{subModule.Name}\"");
                             break;
                         }
                         string value = subModule.Tags[i];
