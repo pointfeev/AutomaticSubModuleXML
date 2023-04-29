@@ -1,46 +1,44 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-	<Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props"
-	        Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-	<PropertyGroup>
-		<Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
-		<Platform Condition="'$(Platform)' == ''">AnyCPU</Platform>
-		<OutputType>Library</OutputType>
-		<AppDesignerFolder>Properties</AppDesignerFolder>
-		<RootNamespace>ASMXML</RootNamespace>
-		<AssemblyName>$(RootNamespace)</AssemblyName>
-		<TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
-		<FileAlignment>512</FileAlignment>
-		<Deterministic>true</Deterministic>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
-		<Optimize>true</Optimize>
-		<OutputPath>C:\Users\zehme\Dropbox\git</OutputPath>
-		<DefineConstants>TRACE</DefineConstants>
-		<ErrorReport>prompt</ErrorReport>
-		<LangVersion>latest</LangVersion>
-		<PlatformTarget>AnyCPU</PlatformTarget>
-		<DebugType>none</DebugType>
-		<DebugSymbols>false</DebugSymbols>
-	</PropertyGroup>
-	<ItemGroup>
-		<Compile Include="SubModuleAttributes.cs" />
-		<Compile Include="AutomaticSubModuleXML.cs" />
-		<Compile Include="Properties\AssemblyInfo.cs" />
-	</ItemGroup>
-	<ItemGroup>
-		<Reference Include="System" />
-		<Reference Include="System.Configuration" />
-		<Reference Include="System.Net" />
-		<Reference Include="System.Xaml" />
-		<Reference Include="WindowsBase" />
-	</ItemGroup>
-	<ItemGroup>
-		<PackageReference Include="Microsoft.Build.Utilities.Core">
-			<Version>17.4.0</Version>
-			<IncludeAssets>compile</IncludeAssets>
-		</PackageReference>
-	</ItemGroup>
-	<Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
+    <Platform Condition="'$(Platform)' == ''">AnyCPU</Platform>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>ASMXML</RootNamespace>
+    <AssemblyName>$(RootNamespace)</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+    <ProjectGuid>{A19A9629-8CE0-4B07-B0F0-4AFDACD2E880}</ProjectGuid>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+    <Optimize>true</Optimize>
+    <OutputPath>C:\Users\zehme\Dropbox\git</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <LangVersion>latest</LangVersion>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="AutomaticSubModuleXML.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Net" />
+    <Reference Include="System.Xaml" />
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Build.Utilities.Core">
+      <Version>17.4.0</Version>
+      <IncludeAssets>compile</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

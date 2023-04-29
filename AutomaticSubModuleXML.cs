@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
+﻿using System.IO;
 using System.Text;
+using System.Text.RegularExpressions;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 
@@ -14,136 +11,167 @@ public class AutomaticSubModuleXML : Task
     private readonly StringBuilder Message = new();
     private readonly StringBuilder Output = new();
 
-    [Required] public string Target { get; set; }
-
-    private T LogGetAttribute<T>(Assembly assembly) where T : Attribute
-    {
-        T attribute = assembly.GetCustomAttribute<T>();
-        if (attribute is not null)
-            return attribute;
-        Log.LogError($"Missing assembly attribute \"{typeof(T).Name}\"");
-        return null;
-    }
+    [Required] public string OutputPath { get; set; }
+    [Required] public string Id { get; set; }
+    [Required] public string Name { get; set; }
+    [Required] public string Version { get; set; }
+    [Required] public string DefaultModule { get; set; }
+    [Required] public string ModuleCategory { get; set; }
+    [Required] public string ModuleType { get; set; }
+    public string[] DependedModules { get; set; }
+    public string[] ModulesToLoadAfterThis { get; set; }
+    public string[] IncompatibleModules { get; set; }
+    public string[] SubModules { get; set; }
+    public string[] Xmls { get; set; }
 
     public override bool Execute()
     {
-        Assembly assembly = Assembly.Load(File.ReadAllBytes(Target));
-        string output = Path.GetFullPath(Path.GetDirectoryName(Target) + @"\..\..\") + @"SubModule.xml";
+        string output = Path.GetFullPath(OutputPath + @"\..\..\SubModule.xml");
         _ = Message.AppendLine($"SubModule -> {output}");
         _ = Output.AppendLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
         _ = Output.AppendLine("<Module>");
-        string id = LogGetAttribute<ModuleId>(assembly)?.Value;
+        string id = Id;
         _ = Output.AppendLine($"\t<Id value=\"{id}\" />");
         _ = Message.AppendLine($"\tId = {id}");
-        string name = LogGetAttribute<ModuleName>(assembly)?.Value;
+        string name = Name;
         _ = Output.AppendLine($"\t<Name value=\"{name}\" />");
         _ = Message.AppendLine($"\tName = {name}");
-        string version = LogGetAttribute<ModuleVersion>(assembly)?.Value;
+        string version = Version;
         _ = Output.AppendLine($"\t<Version value=\"{version}\" />");
         _ = Message.AppendLine($"\tVersion = {version}");
-        string @default = (LogGetAttribute<ModuleDefault>(assembly)?.Value ?? false).ToString().ToLower();
-        _ = Output.AppendLine($"\t<DefaultModule value=\"{@default}\" />");
-        _ = Message.AppendLine($"\tDefaultModule = {@default}");
-        string category = LogGetAttribute<ModuleCategory>(assembly)?.Value;
-        _ = Output.AppendLine($"\t<ModuleCategory value=\"{category}\" />");
-        _ = Message.AppendLine($"\tModuleCategory = {category}");
-        string type = LogGetAttribute<ModuleType>(assembly)?.Value;
-        _ = Output.AppendLine($"\t<ModuleType value=\"{type}\" />");
-        _ = Message.AppendLine($"\tModuleType = {type}");
-        List<ModuleDependedModule> dependencies = assembly.GetCustomAttributes<ModuleDependedModule>().ToList();
-        if (dependencies.Count > 0)
+        string defaultModule = DefaultModule;
+        _ = Output.AppendLine($"\t<DefaultModule value=\"{defaultModule}\" />");
+        _ = Message.AppendLine($"\tDefaultModule = {defaultModule}");
+        string moduleCategory = ModuleCategory;
+        _ = Output.AppendLine($"\t<ModuleCategory value=\"{moduleCategory}\" />");
+        _ = Message.AppendLine($"\tModuleCategory = {moduleCategory}");
+        string moduleType = ModuleType;
+        _ = Output.AppendLine($"\t<ModuleType value=\"{moduleType}\" />");
+        _ = Message.AppendLine($"\tModuleType = {moduleType}");
+        string[] dependencies = DependedModules;
+        if (dependencies?.Length > 0)
         {
             _ = Output.AppendLine("\t<DependedModules>");
             _ = Message.AppendLine("\tDependedModules:");
-            foreach (ModuleDependedModule dependency in dependencies)
+            for (int i = 0; i < dependencies.Length; i++)
             {
-                _ = Output.Append($"\t\t<DependedModule Id=\"{dependency.Id}\"");
-                _ = Message.Append($"\t\t{dependency.Id}");
-                if (dependency.Version is not null)
+                string dependencyId = dependencies[i];
+                _ = Output.Append($"\t\t<DependedModule Id=\"{dependencyId}\"");
+                _ = Message.Append($"\t\t{dependencyId}");
+                if (i + 1 <= dependencies.Length && dependencies[i + 1] is { } dependencyVersion
+                                                 && System.Version.TryParse(Regex.Replace(dependencyVersion, "[^0-9.]", ""), out _))
                 {
-                    _ = Output.Append($" DependentVersion=\"{dependency.Version}\"");
-                    _ = Message.Append($" >= {dependency.Version}");
+                    _ = Output.Append($" DependentVersion=\"{dependencyVersion}\"");
+                    _ = Message.Append($" >= {dependencyVersion}");
+                    i++;
                 }
-                _ = Output.Append($" Optional=\"{dependency.Optional.ToString().ToLower()}\"");
-                if (dependency.Optional)
+                if (i + 1 <= dependencies.Length && bool.TryParse(dependencies[i + 1], out bool dependencyOptional)
+                 || i + 2 <= dependencies.Length && bool.TryParse(dependencies[i + 2], out dependencyOptional))
+                    i++;
+                else
+                    dependencyOptional = false;
+                _ = Output.Append($" Optional=\"{dependencyOptional.ToString().ToLower()}\"");
+                if (dependencyOptional)
                     _ = Message.Append(" (optional)");
                 _ = Output.AppendLine(" />");
                 _ = Message.AppendLine();
             }
             _ = Output.AppendLine("\t</DependedModules>");
         }
-        List<ModuleModulesToLoadAfterThis> modulesToLoadAfterThis = assembly.GetCustomAttributes<ModuleModulesToLoadAfterThis>().ToList();
-        if (modulesToLoadAfterThis.Count > 0)
+        string[] modulesToLoadAfterThis = ModulesToLoadAfterThis;
+        if (modulesToLoadAfterThis?.Length > 0)
         {
             _ = Output.AppendLine("\t<ModulesToLoadAfterThis>");
             _ = Message.AppendLine("\tModulesToLoadAfterThis:");
-            foreach (ModuleModulesToLoadAfterThis moduleToLoadAfterThis in modulesToLoadAfterThis)
+            foreach (string moduleId in modulesToLoadAfterThis)
             {
-                _ = Output.AppendLine($"\t\t<Module Id=\"{moduleToLoadAfterThis.Id}\" />");
-                _ = Message.AppendLine($"\t\t{moduleToLoadAfterThis.Id}");
+                _ = Output.AppendLine($"\t\t<Module Id=\"{moduleId}\" />");
+                _ = Message.AppendLine($"\t\t{moduleId}");
             }
             _ = Output.AppendLine("\t</ModulesToLoadAfterThis>");
         }
-        List<ModuleIncompatibleModule> incompatibilities = assembly.GetCustomAttributes<ModuleIncompatibleModule>().ToList();
-        if (incompatibilities.Count > 0)
+        string[] incompatibilities = IncompatibleModules;
+        if (incompatibilities?.Length > 0)
         {
             _ = Output.AppendLine("\t<IncompatibleModules>");
             _ = Message.AppendLine("\tIncompatibleModules:");
-            foreach (ModuleIncompatibleModule incompatibility in incompatibilities)
+            foreach (string moduleId in incompatibilities)
             {
-                _ = Output.AppendLine($"\t\t<Module Id=\"{incompatibility.Id}\" />");
-                _ = Message.AppendLine($"\t\t{incompatibility.Id}");
+                _ = Output.AppendLine($"\t\t<Module Id=\"{moduleId}\" />");
+                _ = Message.AppendLine($"\t\t{moduleId}");
             }
             _ = Output.AppendLine("\t</IncompatibleModules>");
         }
-        List<ModuleSubModule> subModules = assembly.GetCustomAttributes<ModuleSubModule>().ToList();
-        if (subModules.Count > 0)
+        string[] subModules = SubModules;
+        if (subModules?.Length > 0)
         {
             _ = Output.AppendLine("\t<SubModules>");
             _ = Message.AppendLine("\tSubModules:");
-            foreach (ModuleSubModule subModule in subModules)
+            for (int i = 0; i < subModules.Length; i++)
             {
+                string subModuleName = subModules[i];
                 _ = Output.AppendLine("\t\t<SubModule>");
-                _ = Message.AppendLine($"\t\t{subModule.Name}:");
-                _ = Output.AppendLine($"\t\t\t<Name value=\"{subModule.Name}\" />");
-                _ = Output.AppendLine($"\t\t\t<DLLName value=\"{subModule.DLLName}\" />");
-                _ = Message.AppendLine($"\t\t\tDLLName = {subModule.DLLName}");
-                _ = Output.AppendLine($"\t\t\t<SubModuleClassType value=\"{subModule.SubModuleClassType}\" />");
-                _ = Message.AppendLine($"\t\t\tSubModuleClassType = {subModule.SubModuleClassType}");
-                if (subModule.Tags?.Length > 0)
+                _ = Message.AppendLine($"\t\t{subModuleName}:");
+                _ = Output.AppendLine($"\t\t\t<Name value=\"{subModuleName}\" />");
+                if (++i > subModules.Length)
+                {
+                    Log.LogError($"Missing DLLName for SubModule \"{subModuleName}\"");
+                    break;
+                }
+                string subModuleDllName = subModules[i];
+                _ = Output.AppendLine($"\t\t\t<DLLName value=\"{subModuleDllName}\" />");
+                _ = Message.AppendLine($"\t\t\tDLLName = {subModuleDllName}");
+                if (++i > subModules.Length)
+                {
+                    Log.LogError($"Missing SubModuleClassType for SubModule \"{subModuleName}\" with DLLName \"{subModuleDllName}\"");
+                    break;
+                }
+                string subModuleClassType = subModules[i];
+                _ = Output.AppendLine($"\t\t\t<SubModuleClassType value=\"{subModuleClassType}\" />");
+                _ = Message.AppendLine($"\t\t\tSubModuleClassType = {subModuleClassType}");
+                // NEED TO SUPPORT TAGS
+                /*if (subModule.Tags?.Length > 0)
                 {
                     _ = Output.AppendLine("\t\t\t<Tags>");
                     _ = Message.AppendLine("\t\t\tTags:");
-                    for (int i = 0; i < subModule.Tags.Length; i++)
+                    for (int j = 0; j < subModule.Tags.Length; j++)
                     {
-                        string key = subModule.Tags[i];
-                        if (++i > subModule.Tags.Length)
+                        string key = subModule.Tags[j];
+                        if (++j > subModule.Tags.Length)
                         {
-                            Log.LogError($"Invalid number of tag parameters for SubModule \"{subModule.Name}\"");
+                            Log.LogError($"Invalid number of tag parameters for SubModule \"{subModuleName}\"");
                             break;
                         }
-                        string value = subModule.Tags[i];
+                        string value = subModule.Tags[j];
                         _ = Output.AppendLine($"\t\t\t\t<Tag key=\"{key}\" value=\"{value}\" />");
                         _ = Message.AppendLine($"\t\t\t\t{key} = {value}");
                     }
                     _ = Output.AppendLine("\t\t\t</Tags>");
-                }
+                }*/
                 _ = Output.AppendLine("\t\t</SubModule>");
             }
             _ = Output.AppendLine("\t</SubModules>");
         }
-        List<ModuleXml> xmls = assembly.GetCustomAttributes<ModuleXml>().ToList();
-        if (xmls.Count > 0)
+        string[] xmls = Xmls;
+        if (xmls?.Length > 0)
         {
             _ = Output.AppendLine("\t<Xmls>");
             _ = Message.AppendLine("\tXmls:");
-            foreach (ModuleXml xml in xmls)
+            for (int i = 0; i < xmls.Length; i++)
             {
+                string xmlId = xmls[i];
                 _ = Output.AppendLine("\t\t<XmlNode>");
-                _ = Message.AppendLine($"\t\t{xml.Id}:");
-                _ = Message.AppendLine($"\t\t\tPath = {xml.Path}");
-                _ = Output.AppendLine($"\t\t\t<XmlName id=\"{xml.Id}\" path=\"{xml.Path}\" />");
-                if (xml.IncludedGameTypes?.Length > 0)
+                _ = Message.AppendLine($"\t\t{xmlId}:");
+                if (++i > xmls.Length)
+                {
+                    Log.LogError($"Missing path for XmlNode \"{xmlId}\"");
+                    break;
+                }
+                string xmlPath = xmls[i];
+                _ = Message.AppendLine($"\t\t\tpath = {xmlPath}");
+                _ = Output.AppendLine($"\t\t\t<XmlName id=\"{xmlId}\" path=\"{xmlPath}\" />");
+                // NEED TO SUPPORT INCLUDEDGAMETYPES
+                /*if (xml.IncludedGameTypes?.Length > 0)
                 {
                     _ = Output.AppendLine("\t\t\t<IncludedGameTypes>");
                     _ = Message.AppendLine("\t\t\tIncludedGameTypes:");
@@ -153,7 +181,7 @@ public class AutomaticSubModuleXML : Task
                         _ = Message.AppendLine($"\t\t\t\t{gameType}");
                     }
                     _ = Output.AppendLine("\t\t\t</IncludedGameTypes>");
-                }
+                }*/
                 _ = Output.AppendLine("\t\t</XmlNode>");
             }
             _ = Output.AppendLine("\t</Xmls>");
