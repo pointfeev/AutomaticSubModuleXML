@@ -1,44 +1,92 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
+
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <PropertyGroup>
-    <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
-    <Platform Condition="'$(Platform)' == ''">AnyCPU</Platform>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ASMXML</RootNamespace>
-    <AssemblyName>$(RootNamespace)</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <Deterministic>true</Deterministic>
-    <ProjectGuid>{A19A9629-8CE0-4B07-B0F0-4AFDACD2E880}</ProjectGuid>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
-    <Optimize>true</Optimize>
-    <OutputPath>C:\Users\zehme\Dropbox\git</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <LangVersion>latest</LangVersion>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugType>none</DebugType>
-    <DebugSymbols>false</DebugSymbols>
-  </PropertyGroup>
-  <ItemGroup>
-    <Compile Include="AutomaticSubModuleXML.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Configuration" />
-    <Reference Include="System.Net" />
-    <Reference Include="System.Xaml" />
-    <Reference Include="WindowsBase" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Build.Utilities.Core">
-      <Version>17.4.0</Version>
-      <IncludeAssets>compile</IncludeAssets>
-    </PackageReference>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+	<Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props"
+	        Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+	<PropertyGroup>
+		<Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
+		<Platform Condition="'$(Platform)' == ''">AnyCPU</Platform>
+		<OutputType>Library</OutputType>
+		<AppDesignerFolder>Properties</AppDesignerFolder>
+		<RootNamespace>ASMXML</RootNamespace>
+		<AssemblyName>$(RootNamespace)</AssemblyName>
+		<TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+		<FileAlignment>512</FileAlignment>
+		<Deterministic>true</Deterministic>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+		<Optimize>true</Optimize>
+		<OutputPath>C:\Users\zehme\Dropbox\git</OutputPath>
+		<DefineConstants>TRACE</DefineConstants>
+		<ErrorReport>prompt</ErrorReport>
+		<LangVersion>latest</LangVersion>
+		<PlatformTarget>AnyCPU</PlatformTarget>
+		<DebugType>none</DebugType>
+		<DebugSymbols>false</DebugSymbols>
+	</PropertyGroup>
+	<ItemGroup>
+		<Compile Include="AutomaticSubModuleXML.cs" />
+		<Compile Include="Properties\AssemblyInfo.cs" />
+	</ItemGroup>
+	<ItemGroup>
+		<Reference Include="System" />
+		<Reference Include="System.Configuration" />
+		<Reference Include="System.Net" />
+		<Reference Include="System.Xaml" />
+		<Reference Include="WindowsBase" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Build.Utilities.Core">
+			<Version>17.4.0</Version>
+			<IncludeAssets>compile</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+	<Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+	<!-- Usage Example
+	<UsingTask TaskName="ASMXML.AutomaticSubModuleXML" AssemblyFile="..\ASMXML.dll" />
+	<Target Name="AutomaticSubModuleXML" AfterTargets="Build">
+		<PropertyGroup>
+			<Id>FooBarModule</Id>
+			<Name>ASMXML Example</Name>
+			<Version>v1.2.3</Version>
+			<Default>true</Default>
+			<Category>Singleplayer</Category>
+			<Type>Community</Type>
+			<HarmonyVersion>v2.3.0</HarmonyVersion>
+			<MCMVersion>v5.1.7</MCMVersion>
+			<MinimumGameVersion>v1.0.0</MinimumGameVersion>
+		</PropertyGroup>
+		<ItemGroup>
+			<DependedModules Include="Bannerlord.Harmony, $(HarmonyVersion)" />
+			<DependedModules Include="Bannerlord.MBOptionScreen, $(MCMVersion), true" />
+			<DependedModules Include="Native, $(MinimumGameVersion)" />
+			<DependedModules Include="SandBoxCore, $(MinimumGameVersion)" />
+			<DependedModules Include="Sandbox, $(MinimumGameVersion)" />
+			<DependedModules Include="StoryMode, $(MinimumGameVersion)" />
+			<DependedModules Include="CustomBattle, $(MinimumGameVersion), true" />
+			<DependedModules Include="BirthAndDeath, $(MinimumGameVersion), true" />
+			<ModulesToLoadAfterThis Include="FooBarModule" />
+			<IncompatibleModules Include="FooBarModule" />
+			<SubModules Include="$(Id), $(Id).dll, $(Id).SubModule" />
+			<SubModules Include="$(Id), $(Id).dll, $(Id).SubModuleWithTags, DedicatedServerType: none, IsNoRenderModeElement: false" />
+			<SubModules Include="MCMv5, MCMv5.dll, MCM.MCMSubModule" />
+			<SubModules Include="MCMv5 Basic Implementation, MCMv5.dll, MCM.Internal.MCMImplementationSubModule" />
+			<Xmls Include="NPCCharacters, lords, Campaign, CampaignStoryMode" />
+			<Xmls Include="MPCharacters, mpcharacters, MultiplayerGame" />
+		</ItemGroup>
+		<AutomaticSubModuleXML
+			OutputPath="$(OutputPath)"
+			Id="$(Id)"
+			Name="$(Name)"
+			Version="$(Version)"
+			DefaultModule="$(Default)"
+			ModuleCategory="$(Category)"
+			ModuleType="$(Type)"
+			DependedModules="@(DependedModules)"
+			ModulesToLoadAfterThis="@(ModulesToLoadAfterThis)"
+			IncompatibleModules="@(IncompatibleModules)"
+			SubModules="@(SubModules)"
+			Xmls="@(Xmls)" />
+	</Target>
+	-->
 </Project>
