@@ -1,6 +1,5 @@
 ﻿using System.IO;
 using System.Text;
-using System.Text.RegularExpressions;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 
@@ -48,28 +47,49 @@ public class AutomaticSubModuleXML : Task
         string moduleType = ModuleType;
         _ = Output.AppendLine($"\t<ModuleType value=\"{moduleType}\" />");
         _ = Message.AppendLine($"\tModuleType = {moduleType}");
-        string[] dependencies = DependedModules;
-        if (dependencies?.Length > 0)
+        string[] dependedModules = DependedModules;
+        if (dependedModules?.Length > 0)
         {
             _ = Output.AppendLine("\t<DependedModules>");
             _ = Message.AppendLine("\tDependedModules:");
-            for (int i = 0; i < dependencies.Length; i++)
+            for (int dependedModuleIndex = 0; dependedModuleIndex < dependedModules.Length; dependedModuleIndex++)
             {
-                string dependencyId = dependencies[i];
+                if (string.IsNullOrWhiteSpace(dependedModules[dependedModuleIndex].Trim().Trim(','))
+                 || dependedModules[dependedModuleIndex].Split(',') is not { Length: > 0 } dependedModule)
+                {
+                    Log.LogError($"Empty DependedModule at index {dependedModuleIndex}");
+                    continue;
+                }
+                string dependencyId = dependedModule[0].Trim();
+                if (string.IsNullOrWhiteSpace(dependencyId))
+                {
+                    Log.LogError($"Empty id for DependedModule at index {dependedModuleIndex}");
+                    continue;
+                }
                 _ = Output.Append($"\t\t<DependedModule Id=\"{dependencyId}\"");
                 _ = Message.Append($"\t\t{dependencyId}");
-                if (i + 1 <= dependencies.Length && dependencies[i + 1] is { } dependencyVersion
-                                                 && System.Version.TryParse(Regex.Replace(dependencyVersion, "[^0-9.]", ""), out _))
+                if (dependedModule.Length > 1)
                 {
+                    string dependencyVersion = dependedModule[1].Trim();
+                    if (string.IsNullOrWhiteSpace(dependencyVersion))
+                    {
+                        Log.LogError($"Empty DependentVersion for DependedModule \"{dependencyId}\" at index {dependedModuleIndex}");
+                        continue;
+                    }
                     _ = Output.Append($" DependentVersion=\"{dependencyVersion}\"");
                     _ = Message.Append($" >= {dependencyVersion}");
-                    i++;
                 }
-                if (i + 1 <= dependencies.Length && bool.TryParse(dependencies[i + 1], out bool dependencyOptional)
-                 || i + 2 <= dependencies.Length && bool.TryParse(dependencies[i + 2], out dependencyOptional))
-                    i++;
-                else
-                    dependencyOptional = false;
+                bool dependencyOptional = false;
+                if (dependedModule.Length > 2)
+                {
+                    string dependencyOptionalString = dependedModule[2].Trim();
+                    if (!bool.TryParse(dependencyOptionalString, out dependencyOptional))
+                    {
+                        Log.LogError(
+                            $"Unable to parse Optional bool from \'{dependencyOptionalString}\' for DependedModule \"{dependencyId}\" at index {dependedModuleIndex}");
+                        continue;
+                    }
+                }
                 _ = Output.Append($" Optional=\"{dependencyOptional.ToString().ToLower()}\"");
                 if (dependencyOptional)
                     _ = Message.Append(" (optional)");
@@ -107,47 +127,82 @@ public class AutomaticSubModuleXML : Task
         {
             _ = Output.AppendLine("\t<SubModules>");
             _ = Message.AppendLine("\tSubModules:");
-            for (int i = 0; i < subModules.Length; i++)
+            for (int subModuleIndex = 0; subModuleIndex < subModules.Length; subModuleIndex++)
             {
-                string subModuleName = subModules[i];
+                if (string.IsNullOrWhiteSpace(subModules[subModuleIndex].Trim().Trim(','))
+                 || subModules[subModuleIndex].Split(',') is not { Length: > 0 } subModule)
+                {
+                    Log.LogError($"Empty SubModule at index {subModuleIndex}");
+                    continue;
+                }
+                string subModuleName = subModule[0].Trim();
+                if (string.IsNullOrWhiteSpace(subModuleName))
+                {
+                    Log.LogError($"Empty name for SubModule at index {subModuleIndex}");
+                    continue;
+                }
                 _ = Output.AppendLine("\t\t<SubModule>");
                 _ = Message.AppendLine($"\t\t{subModuleName}:");
                 _ = Output.AppendLine($"\t\t\t<Name value=\"{subModuleName}\" />");
-                if (++i > subModules.Length)
+                if (subModule.Length < 2)
                 {
                     Log.LogError($"Missing DLLName for SubModule \"{subModuleName}\"");
-                    break;
+                    continue;
                 }
-                string subModuleDllName = subModules[i];
+                string subModuleDllName = subModule[1].Trim();
+                if (string.IsNullOrWhiteSpace(subModuleDllName))
+                {
+                    Log.LogError($"Empty DLLName for SubModule \"{subModuleName}\"");
+                    continue;
+                }
                 _ = Output.AppendLine($"\t\t\t<DLLName value=\"{subModuleDllName}\" />");
                 _ = Message.AppendLine($"\t\t\tDLLName = {subModuleDllName}");
-                if (++i > subModules.Length)
+                if (subModule.Length < 3)
                 {
-                    Log.LogError($"Missing SubModuleClassType for SubModule \"{subModuleName}\" with DLLName \"{subModuleDllName}\"");
-                    break;
+                    Log.LogError($"Missing SubModuleClassType for SubModule \"{subModuleName}\"");
+                    continue;
                 }
-                string subModuleClassType = subModules[i];
+                string subModuleClassType = subModule[2].Trim();
+                if (string.IsNullOrWhiteSpace(subModuleClassType))
+                {
+                    Log.LogError($"Empty SubModuleClassType for SubModule \"{subModuleName}\"");
+                    continue;
+                }
                 _ = Output.AppendLine($"\t\t\t<SubModuleClassType value=\"{subModuleClassType}\" />");
                 _ = Message.AppendLine($"\t\t\tSubModuleClassType = {subModuleClassType}");
-                // NEED TO SUPPORT TAGS
-                /*if (subModule.Tags?.Length > 0)
+                if (subModule.Length > 3)
                 {
                     _ = Output.AppendLine("\t\t\t<Tags>");
                     _ = Message.AppendLine("\t\t\tTags:");
-                    for (int j = 0; j < subModule.Tags.Length; j++)
+                    for (int tagIndex = 3; tagIndex < subModule.Length; tagIndex++)
                     {
-                        string key = subModule.Tags[j];
-                        if (++j > subModule.Tags.Length)
+                        if (string.IsNullOrWhiteSpace(subModule[tagIndex].Trim().Trim(':')) || subModule[tagIndex].Split(':') is not { Length: > 0 } tag)
                         {
-                            Log.LogError($"Invalid number of tag parameters for SubModule \"{subModuleName}\"");
+                            Log.LogError($"Empty tag at index {tagIndex} for SubModule \"{subModuleName}\"");
+                            continue;
+                        }
+                        string tagKey = tag[0].Trim();
+                        if (string.IsNullOrWhiteSpace(tagKey))
+                        {
+                            Log.LogError($"Empty key for tag at index {tagIndex} for SubModule \"{subModuleName}\"");
+                            continue;
+                        }
+                        if (tag.Length < 2)
+                        {
+                            Log.LogError($"Missing value for tag \"{tagKey}\" for SubModule \"{subModuleName}\"");
                             break;
                         }
-                        string value = subModule.Tags[j];
-                        _ = Output.AppendLine($"\t\t\t\t<Tag key=\"{key}\" value=\"{value}\" />");
-                        _ = Message.AppendLine($"\t\t\t\t{key} = {value}");
+                        string tagValue = tag[1].Trim();
+                        if (string.IsNullOrWhiteSpace(tagValue))
+                        {
+                            Log.LogError($"Empty value for tag \"{tagKey}\" for SubModule \"{subModuleName}\"");
+                            continue;
+                        }
+                        _ = Output.AppendLine($"\t\t\t\t<Tag key=\"{tagKey}\" value=\"{tagValue}\" />");
+                        _ = Message.AppendLine($"\t\t\t\t{tagKey} = {tagValue}");
                     }
                     _ = Output.AppendLine("\t\t\t</Tags>");
-                }*/
+                }
                 _ = Output.AppendLine("\t\t</SubModule>");
             }
             _ = Output.AppendLine("\t</SubModules>");
@@ -157,31 +212,51 @@ public class AutomaticSubModuleXML : Task
         {
             _ = Output.AppendLine("\t<Xmls>");
             _ = Message.AppendLine("\tXmls:");
-            for (int i = 0; i < xmls.Length; i++)
+            for (int xmlIndex = 0; xmlIndex < xmls.Length; xmlIndex++)
             {
-                string xmlId = xmls[i];
-                _ = Output.AppendLine("\t\t<XmlNode>");
-                _ = Message.AppendLine($"\t\t{xmlId}:");
-                if (++i > xmls.Length)
+                if (string.IsNullOrWhiteSpace(xmls[xmlIndex].Trim().Trim(',')) || xmls[xmlIndex].Split(',') is not { Length: > 0 } xmlNode)
                 {
-                    Log.LogError($"Missing path for XmlNode \"{xmlId}\"");
-                    break;
+                    Log.LogError($"Empty XmlNode at index {xmlIndex}");
+                    continue;
                 }
-                string xmlPath = xmls[i];
-                _ = Message.AppendLine($"\t\t\tpath = {xmlPath}");
-                _ = Output.AppendLine($"\t\t\t<XmlName id=\"{xmlId}\" path=\"{xmlPath}\" />");
-                // NEED TO SUPPORT INCLUDEDGAMETYPES
-                /*if (xml.IncludedGameTypes?.Length > 0)
+                string xmlNodeId = xmlNode[0].Trim();
+                if (string.IsNullOrWhiteSpace(xmlNodeId))
+                {
+                    Log.LogError($"Empty id for XmlNode at index {xmlIndex}");
+                    continue;
+                }
+                _ = Output.AppendLine("\t\t<XmlNode>");
+                _ = Message.AppendLine($"\t\t{xmlNodeId}:");
+                if (xmlNode.Length < 2)
+                {
+                    Log.LogError($"Missing path for XmlNode \"{xmlNodeId}\"");
+                    continue;
+                }
+                string xmlNodePath = xmlNode[1].Trim();
+                if (string.IsNullOrWhiteSpace(xmlNodePath))
+                {
+                    Log.LogError($"Empty path for XmlNode \"{xmlNodeId}\"");
+                    continue;
+                }
+                _ = Message.AppendLine($"\t\t\tpath = {xmlNodePath}");
+                _ = Output.AppendLine($"\t\t\t<XmlName id=\"{xmlNodeId}\" path=\"{xmlNodePath}\" />");
+                if (xmlNode.Length > 2)
                 {
                     _ = Output.AppendLine("\t\t\t<IncludedGameTypes>");
                     _ = Message.AppendLine("\t\t\tIncludedGameTypes:");
-                    foreach (string gameType in xml.IncludedGameTypes)
+                    for (int gameTypeIndex = 2; gameTypeIndex < xmlNode.Length; gameTypeIndex++)
                     {
+                        string gameType = xmlNode[gameTypeIndex].Trim();
+                        if (string.IsNullOrWhiteSpace(gameType))
+                        {
+                            Log.LogError($"Empty GameType at index {gameTypeIndex} for XmlNode \"{xmlNodeId}\"");
+                            continue;
+                        }
                         _ = Output.AppendLine($"\t\t\t\t<GameType value=\"{gameType}\" />");
                         _ = Message.AppendLine($"\t\t\t\t{gameType}");
                     }
                     _ = Output.AppendLine("\t\t\t</IncludedGameTypes>");
-                }*/
+                }
                 _ = Output.AppendLine("\t\t</XmlNode>");
             }
             _ = Output.AppendLine("\t</Xmls>");
