@@ -68,7 +68,7 @@
 			<ModulesToLoadAfterThis Include="FooBarModule" />
 			<IncompatibleModules Include="FooBarModule" />
 			<SubModules Include="$(Id), $(Id).dll, $(Id).SubModule" />
-			<SubModules Include="$(Id), $(Id).dll, $(Id).SubModuleWithTags, DedicatedServerType: none, IsNoRenderModeElement: false" />
+			<SubModules Include="$(Id) With Tags, $(Id).dll, $(Id).SubModuleWithTags, DedicatedServerType: none, IsNoRenderModeElement: false" />
 			<SubModules Include="MCMv5, MCMv5.dll, MCM.MCMSubModule" />
 			<SubModules Include="MCMv5 Basic Implementation, MCMv5.dll, MCM.Internal.MCMImplementationSubModule" />
 			<Xmls Include="NPCCharacters, lords, Campaign, CampaignStoryMode" />
