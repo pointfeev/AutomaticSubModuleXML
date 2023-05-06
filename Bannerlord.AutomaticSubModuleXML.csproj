@@ -16,7 +16,7 @@
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
 		<Optimize>true</Optimize>
-		<OutputPath>C:\Users\zehme\Dropbox\git</OutputPath>
+		<OutputPath>..\</OutputPath>
 		<DefineConstants>TRACE</DefineConstants>
 		<ErrorReport>prompt</ErrorReport>
 		<LangVersion>latest</LangVersion>
